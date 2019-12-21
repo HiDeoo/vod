@@ -1,4 +1,5 @@
 import childProcess, { spawn, ChildProcessWithoutNullStreams } from 'child_process'
+import path from 'path'
 import { quote } from 'shell-quote'
 import util from 'util'
 
@@ -27,16 +28,17 @@ class Streamlink {
   /**
    * Downloads a Twitch VOD using streamlink.
    * @param  url - The VOD URL.
+   * @param  filePath - The path where to save the VOD.
    * @param  fileName - The file name to use when saving.
    * @return A promise resovled or rejected when the download is done.
    */
-  async downloadVod(url: string, fileName: string) {
+  async downloadVod(url: string, filePath: string, fileName: string) {
     return new Promise((resolve, reject) => {
       const sanitizedFileName = quote([fileName])
         .replace(/\//g, '-')
         .slice(1, -1)
 
-      this.command = spawn('streamlink', ['-o', sanitizedFileName, url])
+      this.command = spawn('streamlink', ['-o', path.join(filePath, sanitizedFileName), url])
 
       this.command.on('error', (error: Error) => {
         reject(error)

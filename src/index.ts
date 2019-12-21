@@ -1,5 +1,6 @@
 import assert from 'assert'
 import dotenv from 'dotenv-flow'
+import fs from 'fs-extra'
 import inquirer from 'inquirer'
 
 import Streamlink from './Streamlink'
@@ -19,6 +20,10 @@ async function initialize() {
 
   // Ensure environment variables are properly set.
   assert(process.env.TWITCH_CLIENT_ID, 'Twitch Client ID not defined.')
+
+  // Ensure the download path exists.
+  const downloadPathExists = await fs.pathExists(process.env.DOWNLOAD_PATH)
+  assert(downloadPathExists, 'The download directly does not exist.')
 
   // Enforce usage.
   assert(process.argv.length === 3, 'Usage: vod <channel>')
@@ -69,7 +74,11 @@ async function downloadVod(vod: TwitchVod) {
 
   Progress.update(`Downloading VOD: ${vod.title} - ${date}`)
 
-  await Streamlink.downloadVod(`https://www.twitch.tv/videos/${vod.id}`, `${vod.id} - ${vod.user_name} - ${date}.mp4`)
+  await Streamlink.downloadVod(
+    `https://www.twitch.tv/videos/${vod.id}`,
+    process.env.DOWNLOAD_PATH,
+    `${vod.id} - ${vod.user_name} - ${date}.mp4`
+  )
 
   Progress.succeed()
 }
