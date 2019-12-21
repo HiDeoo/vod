@@ -11,31 +11,60 @@ import Progress from './Progress'
 dotenv.config()
 
 /**
- * Runs the program.
+ * Initializes the application.
+ */
+function initialize() {
+  // Ensure environment variables are properly set.
+  assert(process.env.TWITCH_CLIENT_ID, 'Twitch Client ID not defined.')
+
+  // Enforce usage.
+  assert(process.argv.length === 3, 'Usage: vod <channel>')
+}
+
+/**
+ * Fetches a Twitch user ID.
+ * @param  channel - The channel name.
+ * @return The Twitch user ID matching the channel.
+ */
+async function getTwitchUserId(channel: string) {
+  Progress.update('Fetching channel informations')
+  const user = await getUser(channel)
+  assert(user, 'Invalid channel name.')
+  Progress.succeed()
+
+  return user.id
+}
+
+/**
+ * Fetches Twitch VODs.
+ * @param  userId - The Twitch user ID.
+ * @return The list of VODs.
+ */
+async function getTwitchVods(userId: string) {
+  Progress.update('Fetching VODs list')
+  const vods = await getVods(userId)
+  assert(vods.length > 0, 'No VODs available for this channel.')
+  Progress.succeed()
+
+  return vods
+}
+
+/**
+ * Runs the application.
  */
 async function main() {
   try {
-    // Ensure environment variables are properly set.
-    assert(process.env.TWITCH_CLIENT_ID, 'Twitch Client ID not defined.')
-
-    // Enforce usage.
-    assert(process.argv.length === 3, 'Usage: vod <channel>')
+    initialize()
 
     // Grab the channel name argument.
     const argv = process.argv.slice(2)
     const channel = argv[0]
 
-    // Fetch Twitch user ID.
-    Progress.update('Fetching channel informations')
-    const user = await getUser(channel)
-    assert(user, 'Invalid channel name.')
-    Progress.succeed()
+    // Fetch the Twitch user ID.
+    const userId = await getTwitchUserId(channel)
 
     // Fetch Twitch VODs.
-    Progress.update('Fetching VODs list')
-    const vods = await getVods(user.id)
-    assert(vods.length > 0, 'No VODs available for this channel.')
-    Progress.succeed()
+    const vods = await getTwitchVods(userId)
 
     const vodsByIds: Record<string, TwitchVod> = {}
     const choices = []
