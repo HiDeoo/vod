@@ -2,7 +2,7 @@ import assert from 'assert'
 import dotenv from 'dotenv-flow'
 import inquirer from 'inquirer'
 
-import { download, ensureStreamlinkExists } from './streamlink'
+import Streamlink from './Streamlink'
 import { getUser, getVods, TwitchVod } from './twitch'
 import Progress from './Progress'
 
@@ -23,7 +23,7 @@ async function initialize() {
   // Enforce usage.
   assert(process.argv.length === 3, 'Usage: vod <channel>')
 
-  await ensureStreamlinkExists()
+  await Streamlink.ensureStreamlinkExists()
 
   Progress.succeed()
 }
@@ -69,7 +69,7 @@ async function downloadVod(vod: TwitchVod) {
 
   Progress.update(`Downloading VOD: ${vod.title} - ${date}`)
 
-  await download(`https://www.twitch.tv/videos/${vod.id}`, `${vod.id} - ${vod.user_name} - ${date}.mp4`)
+  await Streamlink.downloadVod(`https://www.twitch.tv/videos/${vod.id}`, `${vod.id} - ${vod.user_name} - ${date}.mp4`)
 
   Progress.succeed()
 }
@@ -123,10 +123,19 @@ async function main() {
       await downloadVod(vod)
     }
 
-    process.exit(0)
+    process.exit()
   } catch (error) {
     Progress.fail(error)
   }
 }
+
+/**
+ * Exit handler.
+ */
+process.on('SIGINT', function() {
+  Streamlink.cancelPendingDownload()
+
+  process.exit()
+})
 
 main()
