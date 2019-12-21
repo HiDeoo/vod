@@ -3,9 +3,10 @@ import dotenv from 'dotenv-flow'
 import fs from 'fs-extra'
 import inquirer from 'inquirer'
 
+import Metadata from './Metadata'
+import Progress from './Progress'
 import Streamlink from './Streamlink'
 import { getUser, getVods, TwitchVod } from './twitch'
-import Progress from './Progress'
 
 /**
  * Load environment variables.
@@ -21,12 +22,15 @@ async function initialize() {
   // Ensure environment variables are properly set.
   assert(process.env.TWITCH_CLIENT_ID, 'Twitch Client ID not defined.')
 
+  // Enforce usage.
+  assert(process.argv.length === 3, 'Usage: vod <channel>')
+
   // Ensure the download path exists.
   const downloadPathExists = await fs.pathExists(process.env.DOWNLOAD_PATH)
   assert(downloadPathExists, 'The download directly does not exist.')
 
-  // Enforce usage.
-  assert(process.argv.length === 3, 'Usage: vod <channel>')
+  // Initializes metadata.
+  await Metadata.initialize()
 
   await Streamlink.ensureStreamlinkExists()
 
@@ -80,6 +84,8 @@ async function downloadVod(vod: TwitchVod) {
     `${vod.id} - ${vod.user_name} - ${date}.mp4`
   )
 
+  await Metadata.markVodAsDownloaded(vod.id)
+
   Progress.succeed()
 }
 
@@ -106,7 +112,14 @@ async function main() {
     // Parse VODs.
     for (const vod of vods) {
       vodsByIds[vod.id] = vod
-      choices.push({ name: `${vod.title} - ${new Date(vod.created_at).toLocaleDateString()}`, value: vod.id })
+
+      const disabled = Metadata.hasDownloadedVod(vod.id) ? 'Downloaded' : false
+
+      choices.push({
+        disabled,
+        name: `${vod.title} - ${new Date(vod.created_at).toLocaleDateString()} - ${vod.duration}`,
+        value: vod.id,
+      })
     }
 
     // Ask for the VODs to download.
