@@ -11,5 +11,6 @@ module.exports = {
   rules: {
     'prettier/prettier': 'error',
     '@typescript-eslint/explicit-function-return-type': 0,
+    '@typescript-eslint/member-delimiter-style': 0,
   },
 }

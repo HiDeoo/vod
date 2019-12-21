@@ -1,7 +1,13 @@
-type t = string
+import dotenv from 'dotenv-flow'
 
-function main(str: t) {
-  console.log(str)
+/**
+ * Load environment variables.
+ */
+dotenv.config()
+
+function main() {
+  console.log('process.env.TWITCH_CLIENT_ID ', process.env.TWITCH_CLIENT_ID)
+  console.log('process.env.SAVE_PATH ', process.env.SAVE_PATH)
 }
 
-main('test')
+main()
