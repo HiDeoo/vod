@@ -1,6 +1,12 @@
-# VOD
+<p align="center">
+  <h1 align="center">vod - Twitch VODs Downloader</h1>
+</p>
 
-**Twitch VODs Downloader**
+<p align="center">
+  <a href="https://github.com/HiDeoo/vod/actions?query=workflow%3Aintegration"><img alt="Integration Status" src="https://github.com/HiDeoo/vod/workflows/integration/badge.svg"></a>
+  <a href="https://github.com/HiDeoo/vod/blob/master/LICENSE"><img alt="License" src="https://badgen.now.sh/badge/license/MIT/blue"></a>
+  <br /><br />
+</p>
 
 <p align="center">
   <img alt="vod" src="https://i.imgur.com/J3FIOM8.png">
