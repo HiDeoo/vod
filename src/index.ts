@@ -2,6 +2,7 @@ import assert from 'assert'
 import dotenv from 'dotenv-flow'
 import inquirer from 'inquirer'
 
+import { download, ensureStreamlinkExists } from './streamlink'
 import { getUser, getVods, TwitchVod } from './twitch'
 import Progress from './Progress'
 
@@ -13,12 +14,18 @@ dotenv.config()
 /**
  * Initializes the application.
  */
-function initialize() {
+async function initialize() {
+  Progress.update('Starting application')
+
   // Ensure environment variables are properly set.
   assert(process.env.TWITCH_CLIENT_ID, 'Twitch Client ID not defined.')
 
   // Enforce usage.
   assert(process.argv.length === 3, 'Usage: vod <channel>')
+
+  await ensureStreamlinkExists()
+
+  Progress.succeed()
 }
 
 /**
@@ -28,8 +35,10 @@ function initialize() {
  */
 async function getTwitchUserId(channel: string) {
   Progress.update('Fetching channel informations')
+
   const user = await getUser(channel)
   assert(user, 'Invalid channel name.')
+
   Progress.succeed()
 
   return user.id
@@ -42,11 +51,27 @@ async function getTwitchUserId(channel: string) {
  */
 async function getTwitchVods(userId: string) {
   Progress.update('Fetching VODs list')
+
   const vods = await getVods(userId)
   assert(vods.length > 0, 'No VODs available for this channel.')
+
   Progress.succeed()
 
   return vods
+}
+
+/**
+ * Downloads a Twitch VOD.
+ * @param vod - The VOD to download.
+ */
+async function downloadVod(vod: TwitchVod) {
+  const date = new Date(vod.created_at).toLocaleDateString()
+
+  Progress.update(`Downloading VOD: ${vod.title} - ${date}`)
+
+  await download(`https://www.twitch.tv/videos/${vod.id}`, `${vod.id} - ${vod.user_name} - ${date}.mp4`)
+
+  Progress.succeed()
 }
 
 /**
@@ -54,7 +79,7 @@ async function getTwitchVods(userId: string) {
  */
 async function main() {
   try {
-    initialize()
+    await initialize()
 
     // Grab the channel name argument.
     const argv = process.argv.slice(2)
@@ -72,20 +97,31 @@ async function main() {
     // Parse VODs.
     for (const vod of vods) {
       vodsByIds[vod.id] = vod
-      // TODO Improve title with date & stuff
-      choices.push({ name: vod.title, value: vod.id })
+      choices.push({ name: `${vod.title} - ${new Date(vod.created_at).toLocaleDateString()}`, value: vod.id })
     }
 
     // Ask for the VODs to download.
-    const answers = await inquirer.prompt<{ vod: string[] }>({
+    const answers = await inquirer.prompt<{ vods: string[] }>({
       type: 'checkbox',
-      name: 'vod',
+      name: 'vods',
       message: 'Select VODs to download',
       pageSize: 100,
       choices,
     })
 
-    console.log('answers ', answers)
+    // Bail out if no VODs are selected.
+    if (answers.vods.length === 0) {
+      console.log('\nNo VODs selected.')
+
+      process.exit(0)
+    }
+
+    // Download all the VODs.
+    for (const vodId of answers.vods) {
+      const vod = vodsByIds[vodId]
+
+      await downloadVod(vod)
+    }
 
     process.exit(0)
   } catch (error) {

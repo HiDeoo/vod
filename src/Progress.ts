@@ -38,7 +38,7 @@ class Progress {
   fail(error: Error) {
     this.spinner.fail()
 
-    console.error(error.message)
+    console.error(`\n${error.message}`)
 
     process.exit(1)
   }
