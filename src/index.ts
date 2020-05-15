@@ -21,6 +21,7 @@ async function initialize() {
 
   // Ensure environment variables are properly set.
   assert(process.env.TWITCH_CLIENT_ID, 'Twitch Client ID not defined.')
+  assert(process.env.TWITCH_CLIENT_SECRET, 'Twitch Client Secret not defined.')
 
   // Enforce usage.
   assert(process.argv.length === 3, 'Usage: vod <channel>')
