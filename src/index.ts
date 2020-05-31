@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import assert from 'assert'
 import dotenv from 'dotenv-flow'
 import fs from 'fs-extra'
