@@ -41,15 +41,15 @@ class Configuration {
     }
 
     if (!this.result.config[ConfigurationKey.TwitchClientId]) {
-      throw new Error(`Twitch Client ID not defined (${ConfigurationKey.TwitchClientId}).`)
+      throw new Error(`Twitch Client ID not configured (${ConfigurationKey.TwitchClientId}).`)
     }
 
     if (!this.result.config[ConfigurationKey.TwitchClientSecret]) {
-      throw new Error(`Twitch Client Secret not defined (${ConfigurationKey.TwitchClientSecret}).`)
+      throw new Error(`Twitch Client Secret not configured (${ConfigurationKey.TwitchClientSecret}).`)
     }
 
     if (!this.result.config[ConfigurationKey.DownloadPath]) {
-      throw new Error(`Download Path not defined (${ConfigurationKey.DownloadPath}).`)
+      throw new Error(`Download Path not configured (${ConfigurationKey.DownloadPath}).`)
     }
   }
 
