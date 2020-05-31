@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="vod" src="https://i.imgur.com/J3FIOM8.png">
+  <img alt="vod" src="https://imgur.com/r7zMYPD.png">
 </p>
 
 # Requirements
@@ -18,17 +18,24 @@
 
 # Installation
 
-At the moment, the application is not yet packaged into an executable.
+Install the application:
 
-1. Clone the repository.
-1. `yarn`
-1. `yarn build`
-1. Create a copy of the `.env` file named `.env.local` and fill it.
+```sh
+$ yarn global add https://github.com/HiDeoo/vod
+```
+
+Create a configuration file located at `~/.vodrc` by modifying the following example:
+
+```yaml
+twitch_client_id: myTwitchClientId
+twitch_client_secret: myTwitchClientSecret
+download_path: /path/to/download/folder
+```
 
 ## Usage
 
 ```sh
-$ yarn start <channel>
+$ vod <channel>
 ```
 
 ## License
