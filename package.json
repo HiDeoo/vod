@@ -10,7 +10,8 @@
     "build": "tsc",
     "start": "node lib",
     "dev": "tsc && tsc -w",
-    "lint": "eslint --max-warnings=0 --ext .ts src && tsc --noEmit"
+    "lint": "eslint --max-warnings=0 --ext .ts src && tsc --noEmit",
+    "prepare": "yarn build"
   },
   "dependencies": {
     "dotenv-flow": "3.1.0",
@@ -59,5 +60,8 @@
       "prettier --write",
       "git add"
     ]
-  }
+  },
+  "files": [
+    "lib/*.js"
+  ]
 }
