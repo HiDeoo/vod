@@ -1,6 +1,8 @@
 import _fetch, { Headers } from 'node-fetch'
 import { URL } from 'url'
 
+import Configuration, { ConfigurationKey } from './Configuration'
+
 /**
  * Session app acess token.
  */
@@ -32,8 +34,8 @@ export function getVods(userId: string): Promise<TwitchVod[]> {
 async function getAccessToken() {
   const url = new URL('https://id.twitch.tv/oauth2/token')
 
-  url.searchParams.set('client_id', process.env.TWITCH_CLIENT_ID)
-  url.searchParams.set('client_secret', process.env.TWITCH_CLIENT_SECRET)
+  url.searchParams.set('client_id', Configuration.get(ConfigurationKey.TwitchClientId))
+  url.searchParams.set('client_secret', Configuration.get(ConfigurationKey.TwitchClientSecret))
   url.searchParams.set('grant_type', 'client_credentials')
 
   const response = await _fetch(url, { method: 'POST' })
@@ -58,7 +60,10 @@ async function fetch(path: ApiPath, searchParams?: SearchParams) {
   }
 
   const url = new URL(getUrl(path, searchParams))
-  const headers = new Headers({ 'Client-ID': process.env.TWITCH_CLIENT_ID, Authorization: `Bearer ${accessToken}` })
+  const headers = new Headers({
+    'Client-ID': Configuration.get(ConfigurationKey.TwitchClientId),
+    Authorization: `Bearer ${accessToken}`,
+  })
   const response = await _fetch(url, { headers })
 
   if (!response.ok) {

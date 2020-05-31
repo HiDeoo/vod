@@ -1,19 +1,14 @@
 #!/usr/bin/env node
 
 import assert from 'assert'
-import dotenv from 'dotenv-flow'
 import fs from 'fs-extra'
 import inquirer from 'inquirer'
 
+import Configuration, { ConfigurationKey } from './Configuration'
 import Metadata from './Metadata'
 import Progress from './Progress'
 import Streamlink from './Streamlink'
 import { getUser, getVods, TwitchVod } from './twitch'
-
-/**
- * Load environment variables.
- */
-dotenv.config()
 
 /**
  * Initializes the application.
@@ -21,16 +16,17 @@ dotenv.config()
 async function initialize() {
   Progress.update('Starting application')
 
-  // Ensure environment variables are properly set.
-  assert(process.env.TWITCH_CLIENT_ID, 'Twitch Client ID not defined.')
-  assert(process.env.TWITCH_CLIENT_SECRET, 'Twitch Client Secret not defined.')
+  // Loads the configuration and ensure all variables are properly set.
+  Configuration.load()
+  Configuration.validate()
 
   // Enforce usage.
   assert(process.argv.length === 3, 'Usage: vod <channel>')
 
   // Ensure the download path exists.
-  const downloadPathExists = await fs.pathExists(process.env.DOWNLOAD_PATH)
-  assert(downloadPathExists, 'The download directly does not exist.')
+  const downloadPath = Configuration.get(ConfigurationKey.DownloadPath)
+  const downloadPathExists = await fs.pathExists(downloadPath)
+  assert(downloadPathExists, `The download directly does not exist at ${downloadPath}.`)
 
   // Initializes metadata.
   await Metadata.initialize()
@@ -83,7 +79,7 @@ async function downloadVod(vod: TwitchVod) {
 
   await Streamlink.downloadVod(
     `https://www.twitch.tv/videos/${vod.id}`,
-    process.env.DOWNLOAD_PATH,
+    Configuration.get(ConfigurationKey.DownloadPath),
     `${vod.id} - ${vod.user_name} - ${date}.mp4`
   )
 

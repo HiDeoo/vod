@@ -1,6 +1,8 @@
 import fs from 'fs-extra'
 import path from 'path'
 
+import Configuration, { ConfigurationKey } from './Configuration'
+
 /**
  * Metadata abstraction.
  */
@@ -59,7 +61,7 @@ class Metadata {
    * @return The path.
    */
   private getMetadataPath() {
-    return path.join(process.env.DOWNLOAD_PATH, `.metadata`)
+    return path.join(Configuration.get(ConfigurationKey.DownloadPath), `.metadata`)
   }
 }
 
